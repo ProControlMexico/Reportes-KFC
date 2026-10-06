@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#0f172a">
 <title>Procontrol - Tendencias KFC</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js" integrity="sha384-4xaIisuLEy2lo2HkB2C4rEf7v8jbTb2kuogX6TkuEt9feTWKBSFSOzsqNNbV+sKh" crossorigin="anonymous" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -105,6 +107,19 @@ details.q .bar-row { margin: 0; grid-template-columns: 1fr 70px; }
 
 
 /* Vacío */
+.empty-card { max-width: 640px; margin: 40px auto; padding: 36px 32px 28px; text-align: center; border-top: 3px solid var(--brand); }
+.ec-icon { width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 50%; background: #e6f2f0; color: var(--brand); display: flex; align-items: center; justify-content: center; }
+#empty h2 { font-size: 24px; margin: 0 0 6px; letter-spacing: -.02em; }
+.ec-lead { color: var(--muted); font-size: 14.5px; margin: 0 0 22px; }
+.ec-btn { display: inline-block; font-size: 14.5px; padding: 11px 26px; }
+.ec-alt { margin: 12px 0 0; font-size: 12.5px; }
+.ec-alt label { color: var(--brand); text-decoration: underline; cursor: pointer; }
+#load-status { font-size: 12.5px; color: #b4441c; margin: 10px 0 0; min-height: 0; }
+.ec-steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 26px 0 0; padding: 20px 0 0; border-top: 1px solid var(--line); }
+.ec-steps li { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.ec-steps b { width: 24px; height: 24px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.ec-priv { margin: 18px 0 0; font-size: 11.5px; color: var(--muted); }
+@media (max-width: 560px) { .ec-steps { grid-template-columns: 1fr; } }
 
 /* Ficha de sucursal */
 dialog { border: 0; border-radius: 6px; padding: 0; width: min(760px, 94vw); max-height: 90vh; box-shadow: 0 24px 60px rgba(15,23,42,.35); }
@@ -248,12 +263,19 @@ details.f2 .scroll { max-height: 200px; overflow-y: auto; margin-top: 6px; min-w
 
 <main class="wrap wide">
 
-    <div id="empty" class="pcard empty-card" style="max-width:720px;margin:24px auto">
-        <h2 style="font-size:24px">Reporte de tendencias de las sucursales</h2>
-        <p style="color:var(--muted);max-width:56ch;margin:6px auto 18px">Elige la carpeta KFC con los archivos JSON de las sucursales. El reporte se llena solo y tú decides qué sucursales, plagas y secciones incluir. Todo se procesa en tu equipo; no se sube nada.</p>
-        <label class="btn" for="dir-input" style="display:inline-block;font-size:14px;padding:10px 20px">Elegir carpeta KFC</label>
-        <p style="margin-top:14px;font-size:12.5px"><label for="files-input" style="color:var(--brand);text-decoration:underline;cursor:pointer">o elegir archivos JSON sueltos</label></p>
-        <p id="load-status" style="font-size:12.5px;color:var(--muted)"></p>
+    <div id="empty" class="pcard empty-card">
+        <div class="ec-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+        <h2>Reporte de tendencias de las sucursales</h2>
+        <p class="ec-lead">Carga los archivos JSON de las sucursales y el reporte se arma solo.</p>
+        <label class="btn ec-btn" for="dir-input">Elegir carpeta KFC</label>
+        <p class="ec-alt"><label for="files-input">o elegir archivos JSON sueltos</label></p>
+        <p id="load-status" role="status"></p>
+        <ol class="ec-steps">
+            <li><b>1</b><span>Carga la carpeta</span></li>
+            <li><b>2</b><span>Elige sucursales, plagas y secciones</span></li>
+            <li><b>3</b><span>Descarga en Word o PDF</span></li>
+        </ol>
+        <p class="ec-priv">🔒 Todo se procesa en tu equipo; no se sube nada.</p>
     </div>
 
     <div id="app" class="app hidden">
@@ -296,7 +318,10 @@ details.f2 .scroll { max-height: 200px; overflow-y: auto; margin-top: 6px; min-w
             </div>
 
             <div class="pcard">
-                <button class="btn full" onclick="imprimir()">Imprimir / Guardar PDF</button>
+                <div class="stack">
+                    <button class="btn full" onclick="descargarWord()">Descargar Word (.docx)</button>
+                    <button class="btn ghost full" onclick="imprimir()">Imprimir / Guardar PDF</button>
+                </div>
             </div>
         </aside>
 
@@ -427,12 +452,13 @@ async function ingest(fileList) {
             raw.push({j, path: f.webkitRelativePath || f.name, name: f.name});
         } catch (e) { ignorados++; }
     }
-    if (!raw.length) { $("load-status").textContent = "No encontré JSON de proyecto en esa selección (" + ignorados + " archivos ignorados). Elige la carpeta KFC completa."; return; }
+    const aviso = m => { $("load-status").textContent = m; $("load-info").textContent = m; };
+    if (!raw.length) { aviso("No encontré JSON de proyecto en esa selección (" + ignorados + " archivos ignorados). Elige la carpeta KFC completa."); return; }
 
     const dates = {}, info = {}, regVotes = {};
     raw.forEach(({j, path, name}) => {
         const label = ((j.sucursal || "") + " " + (j.clientName || "")).trim();
-        const num = (label.match(/\b(\d{3})\b/) || name.match(/(\d{3})/) || [])[1];
+        const num = (label.match(/\b(\d{3})\b/) || name.match(/(?<!\d)(\d{3})(?!\d)/) || [])[1];
         const clean = (j.sucursal || j.clientName || name).replace(/\bKFC\b/gi, "").replace(/[_\s]+/g, " ").trim();
         const key = num || clean.toUpperCase(), exp = j.exportDate || "";
         if (!info[key] || exp > info[key].exp) info[key] = {exp, name: (num && !/\d{3}/.test(clean) ? num + " " : "") + clean, st: j.stations, aud: j.nmxChecklist || null};
@@ -466,6 +492,8 @@ async function ingest(fileList) {
 
     // Solo cuentan los meses con cobertura suficiente (al menos 1/4 de las visitas del mes con más visitas).
     // Los meses con visitas sueltas no se ofrecen en el periodo ni se usan en ningún cálculo.
+    if (!VIS.length) { aviso("Los archivos no traen visitas (history vacío)."); return; }
+    RECS.forEach(r => { if (!SP_COLOR[r.sp]) SP_COLOR[r.sp] = "#64748b"; if (SPECIES.indexOf(r.sp) < 0) SPECIES.push(r.sp); });
     const visPorMes = {}; VIS.forEach(v => visPorMes[v.m] = (visPorMes[v.m] || 0) + 1);
     const maxVis = Math.max(...Object.values(visPorMes));
     MONTHS = Object.keys(visPorMes).filter(m => visPorMes[m] >= maxVis * .25).sort();
@@ -486,6 +514,8 @@ function restaurar() {
     try {
         const j = JSON.parse(localStorage.getItem(KEY) || "null"); if (!j || !j.G || !j.S) return;
         Object.assign(G, j.G); if (G.mode === "all") G.mode = "top";   // la opción "Todas" ya no existe
+        G.regs = (G.regs || []).filter(r => REGIONS.indexOf(r) >= 0); G.sp = (G.sp || []).filter(x => SPECIES.indexOf(x) >= 0);
+        if (G.mode === "reg" && !G.regs.length) G.mode = "top";
         ["tendMeas", "fichaType", "lineas"].forEach(k => { if (j.S[k]) S[k] = j.S[k]; });
         if (j.S.sec) Object.assign(S.sec, j.S.sec);
         S.fich = Array.isArray(j.S.fich) ? j.S.fich : []; S.notes = j.S.notes || {};
@@ -831,6 +861,249 @@ function imprimir() {
     const t = document.title; document.title = "Reporte_KFC_" + periodo().replace(/\s+/g, "_");
     window.addEventListener("afterprint", function r() { document.title = t; window.removeEventListener("afterprint", r); });
     window.print();
+}
+/* Gráficas nativas de Word: se genera cada gráfica como parte del .docx (XML de gráfica + libro de Excel incrustado), así se puede editar el diseño y los datos desde Word */
+const hx = c => { c = String(c); if (c[0] === "#") return c.slice(1, 7).toUpperCase(); const m = c.match(/\d+/g); return m && m.length >= 3 ? m.slice(0, 3).map(x => (+x).toString(16).padStart(2, "0")).join("").toUpperCase() : "0F766E"; };
+const NS_C = "http://schemas.openxmlformats.org/drawingml/2006/chart", NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main", NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships", NS_WP = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing";
+const colL = i => String.fromCharCode(65 + i);
+
+function datosGrafica(ch) {
+    const tipo = ch.config.type, ds = ch.data.datasets, lg = (ch.options.plugins && ch.options.plugins.legend) || {};
+    const d = {tipo, cat: ch.data.labels.map(String), leyenda: lg.display === false ? null : (lg.position === "right" ? "r" : "b"), pct: /%/.test(ds[0].label || "")};
+    d.series = tipo === "line"
+        ? ds.map(s => ({nombre: s.label || "Serie", color: hx(s.borderColor), guion: !!(s.borderDash && s.borderDash.length), vals: s.data}))
+        : [{nombre: "Capturas", colores: ds[0].backgroundColor.map(hx), vals: ds[0].data}];
+    return d;
+}
+
+function xmlGrafica(d) {
+    const n = d.cat.length, rf = (l, a, b) => "Hoja1!$" + l + "$" + a + (b ? ":$" + l + "$" + b : "");
+    const sc = arr => '<c:strCache><c:ptCount val="' + arr.length + '"/>' + arr.map((v, i) => '<c:pt idx="' + i + '"><c:v>' + esc(v) + '</c:v></c:pt>').join("") + '</c:strCache>';
+    const nc = arr => '<c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="' + arr.length + '"/>' + arr.map((v, i) => v == null ? "" : '<c:pt idx="' + i + '"><c:v>' + v + '</c:v></c:pt>').join("") + '</c:numCache>';
+    const solid = c => '<a:solidFill><a:srgbClr val="' + c + '"/></a:solidFill>';
+    const base = (s, j) => '<c:idx val="' + j + '"/><c:order val="' + j + '"/><c:tx><c:strRef><c:f>' + rf(colL(j + 1), 1) + '</c:f>' + sc([s.nombre]) + '</c:strRef></c:tx>';
+    const cv = j => '<c:cat><c:strRef><c:f>' + rf("A", 2, n + 1) + '</c:f>' + sc(d.cat) + '</c:strRef></c:cat><c:val><c:numRef><c:f>' + rf(colL(j + 1), 2, n + 1) + '</c:f>' + nc(d.series[j].vals) + '</c:numRef></c:val>';
+    const fmt = d.pct ? '0&quot;%&quot;' : "General";
+    let plot;
+    if (d.tipo === "line") {
+        plot = '<c:lineChart><c:grouping val="standard"/><c:varyColors val="0"/>' + d.series.map((s, j) =>
+            '<c:ser>' + base(s, j) + '<c:spPr><a:ln w="28575" cap="rnd">' + solid(s.color) + (s.guion ? '<a:prstDash val="dash"/>' : "") + '<a:round/></a:ln></c:spPr>' +
+            (s.guion ? '<c:marker><c:symbol val="none"/></c:marker>' : '<c:marker><c:symbol val="circle"/><c:size val="5"/><c:spPr>' + solid(s.color) + '<a:ln><a:noFill/></a:ln></c:spPr></c:marker>') +
+            cv(j) + '<c:smooth val="0"/></c:ser>').join("") + '<c:marker val="1"/><c:axId val="111"/><c:axId val="222"/></c:lineChart>' +
+            '<c:catAx><c:axId val="111"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:delete val="0"/><c:axPos val="b"/><c:numFmt formatCode="General" sourceLinked="0"/><c:majorTickMark val="none"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/><c:spPr><a:ln w="9525">' + solid("CBD5D3") + '</a:ln></c:spPr><c:crossAx val="222"/><c:crosses val="autoZero"/><c:auto val="1"/><c:lblAlgn val="ctr"/><c:lblOffset val="100"/><c:noMultiLvlLbl val="0"/></c:catAx>' +
+            '<c:valAx><c:axId val="222"/><c:scaling><c:orientation val="minMax"/><c:min val="0"/></c:scaling><c:delete val="0"/><c:axPos val="l"/><c:majorGridlines><c:spPr><a:ln w="9525">' + solid("E5ECEB") + '</a:ln></c:spPr></c:majorGridlines><c:numFmt formatCode="' + fmt + '" sourceLinked="0"/><c:majorTickMark val="none"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/><c:spPr><a:ln><a:noFill/></a:ln></c:spPr><c:crossAx val="111"/><c:crosses val="autoZero"/><c:crossBetween val="between"/></c:valAx>';
+    } else {
+        const s = d.series[0], dona = d.tipo === "doughnut";
+        plot = (dona ? '<c:doughnutChart>' : '<c:pieChart>') + '<c:varyColors val="1"/><c:ser>' + base(s, 0) + '<c:spPr><a:ln w="19050">' + solid("FFFFFF") + '</a:ln></c:spPr>' +
+            s.colores.map((c, i) => '<c:dPt><c:idx val="' + i + '"/><c:bubble3D val="0"/><c:spPr>' + solid(c) + '<a:ln w="19050">' + solid("FFFFFF") + '</a:ln></c:spPr></c:dPt>').join("") + cv(0) + '</c:ser><c:firstSliceAng val="0"/>' + (dona ? '<c:holeSize val="50"/></c:doughnutChart>' : '</c:pieChart>');
+    }
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><c:chartSpace xmlns:c="' + NS_C + '" xmlns:a="' + NS_A + '" xmlns:r="' + NS_R + '"><c:roundedCorners val="0"/><c:chart><c:autoTitleDeleted val="1"/><c:plotArea><c:layout/>' + plot + '</c:plotArea>' +
+        (d.leyenda ? '<c:legend><c:legendPos val="' + d.leyenda + '"/><c:overlay val="0"/></c:legend>' : "") + '<c:plotVisOnly val="1"/><c:dispBlanksAs val="gap"/></c:chart>' +
+        '<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln></c:spPr><c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr sz="900">' + solid("5A6A68") + '</a:defRPr></a:pPr><a:endParaRPr lang="es-MX"/></a:p></c:txPr>' +
+        '<c:externalData r:id="rId1"><c:autoUpdate val="0"/></c:externalData></c:chartSpace>';
+}
+
+// Libro de Excel mínimo con los datos de la gráfica (lo que se abre con "Editar datos" en Word)
+async function xlsxGrafica(d) {
+    const z = new JSZip(), X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', M = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+    const txt = (r, v) => '<c r="' + r + '" t="inlineStr"><is><t>' + esc(v) + '</t></is></c>';
+    let filas = '<row r="1">' + txt("A1", "") + d.series.map((s, j) => txt(colL(j + 1) + "1", s.nombre)).join("") + '</row>';
+    d.cat.forEach((c, i) => { filas += '<row r="' + (i + 2) + '">' + txt("A" + (i + 2), c) + d.series.map((s, j) => s.vals[i] == null ? "" : '<c r="' + colL(j + 1) + (i + 2) + '"><v>' + s.vals[i] + '</v></c>').join("") + '</row>'; });
+    z.file("[Content_Types].xml", X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
+    z.file("_rels/.rels", X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + NS_R + '/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+    z.file("xl/workbook.xml", X + '<workbook xmlns="' + M + '" xmlns:r="' + NS_R + '"><sheets><sheet name="Hoja1" sheetId="1" r:id="rId1"/></sheets></workbook>');
+    z.file("xl/_rels/workbook.xml.rels", X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + NS_R + '/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
+    z.file("xl/worksheets/sheet1.xml", X + '<worksheet xmlns="' + M + '"><sheetData>' + filas + '</sheetData></worksheet>');
+    return z.generateAsync({type: "uint8array"});
+}
+
+// Cambia cada marcador [[GRAFICA_n]] del documento por la gráfica nativa correspondiente
+async function inyectarGraficas(blob, specs) {
+    const z = await JSZip.loadAsync(await blob.arrayBuffer());
+    let doc = await z.file("word/document.xml").async("string"), rels = await z.file("word/_rels/document.xml.rels").async("string"), tipos = await z.file("[Content_Types].xml").async("string");
+    for (let i = 0; i < specs.length; i++) {
+        const {ch, cx, cy} = specs[i], n = i + 1, d = datosGrafica(ch);
+        z.file("word/charts/chart" + n + ".xml", xmlGrafica(d));
+        z.file("word/charts/_rels/chart" + n + ".xml.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + NS_R + '/package" Target="../embeddings/Microsoft_Excel_Sheet' + n + '.xlsx"/></Relationships>');
+        z.file("word/embeddings/Microsoft_Excel_Sheet" + n + ".xlsx", await xlsxGrafica(d));
+        rels = rels.replace("</Relationships>", '<Relationship Id="rIdGraf' + n + '" Type="' + NS_R + '/chart" Target="charts/chart' + n + '.xml"/></Relationships>');
+        tipos = tipos.replace("</Types>", '<Override PartName="/word/charts/chart' + n + '.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/></Types>');
+        const m = doc.indexOf("[[GRAFICA_" + i + "]]"); if (m < 0) throw new Error("marcador " + i);
+        const a = Math.max(doc.lastIndexOf("<w:p>", m), doc.lastIndexOf("<w:p ", m)), b = doc.indexOf("</w:p>", m) + 6;
+        doc = doc.slice(0, a) + '<w:p><w:pPr><w:keepNext/><w:spacing w:before="60" w:after="100"/><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="' + NS_WP + '"><wp:extent cx="' + cx + '" cy="' + cy + '"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="' + (900 + n) + '" name="Gráfica ' + n + '"/><wp:cNvGraphicFramePr/><a:graphic xmlns:a="' + NS_A + '"><a:graphicData uri="' + NS_C + '"><c:chart xmlns:c="' + NS_C + '" xmlns:r="' + NS_R + '" r:id="rIdGraf' + n + '"/></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>' + doc.slice(b);
+    }
+    if (!/Extension="xlsx"/.test(tipos)) tipos = tipos.replace(/(<Types[^>]*>)/, '$1<Default Extension="xlsx" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>');
+    z.file("word/document.xml", doc); z.file("word/_rels/document.xml.rels", rels); z.file("[Content_Types].xml", tipos);
+    return z.generateAsync({type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+}
+
+/* Word editable (.docx nativo, librería docx): hoja horizontal, encabezado con logo, pie con página X de Y, tablas con color y gráficas como imágenes */
+async function descargarWord() {
+    if (!VIS.length) return;
+    if (typeof docx === "undefined") { alert("No se pudo cargar la librería de Word. Revisa tu conexión a internet y recarga la página."); return; }
+    const {Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun, Header, Footer, PageNumber, PageOrientation, LevelFormat, TabStopType, WidthType, AlignmentType, BorderStyle, ShadingType, VerticalAlign} = docx;
+    const TEAL = "0F766E", DEEP = "134E4A", GRIS = "5A6A68", LINEA = "D7DFDE", W = 14112;   // W = ancho útil en twips (carta horizontal, márgenes de 0.6")
+    const LOGO = "https://raw.githubusercontent.com/gavainc/Procontrol-Mexico/main/Logo%20Procontrol%20Vectores.png";   // raw.githubusercontent sí permite CORS; github.com/blob no
+    const BL = {style: BorderStyle.SINGLE, size: 4, color: LINEA}, NO = {style: BorderStyle.NONE, size: 0, color: "FFFFFF"};
+    const BLOQ = /^(DIV|P|TABLE|UL|OL|H[1-6]|DETAILS|CANVAS|SECTION)$/;
+    const hex = s => { const m = String(s).match(/\d+/g); return m && m.length >= 3 ? m.slice(0, 3).map(x => (+x).toString(16).padStart(2, "0")).join("").toUpperCase() : TEAL; };
+    const bytes = url => Uint8Array.from(atob(url.split(",")[1]), c => c.charCodeAt(0));
+
+    const src = $("rep-body"), cl = src.cloneNode(true), live = [...src.querySelectorAll("canvas")];
+    cl.querySelectorAll("canvas").forEach((cv, i) => cv.dataset.i = i);
+    cl.querySelectorAll(".no-print, .rctl, .ia-ctl, textarea, details.f2").forEach(e => e.remove());
+    cl.querySelectorAll(".note:empty").forEach(e => e.remove());
+    // Textos pensados para la página web que en el documento no aplican
+    cl.querySelectorAll(".vacio, .cat-title span").forEach(e => e.textContent = e.textContent.replace("la tabla de al lado", "la tabla de abajo").replace("; despliega para ver las sucursales", ""));
+
+    // Texto con formato en línea: negritas, cursivas y puntos de color
+    const runs = (n, o = {}) => {
+        const out = [];
+        n.childNodes.forEach(c => {
+            if (c.nodeType === 3) {
+                let t = c.textContent.replace(/\s+/g, " ");
+                if (!c.previousSibling) t = t.trimStart();
+                if (!c.nextSibling) t = t.trimEnd();
+                if (t) out.push(new TextRun({text: t, ...o}));
+            } else if (c.nodeType === 1) {
+                if (c.tagName === "I" && c.style.background) out.push(new TextRun({text: "● ", ...o, color: hex(c.style.background)}));
+                else if (c.tagName === "BR") out.push(new TextRun({break: 1}));
+                else out.push(...runs(c, {...o, bold: o.bold || /^(B|STRONG)$/.test(c.tagName) || undefined, italics: o.italics || /^(EM|I)$/.test(c.tagName) || undefined}));
+            }
+        });
+        return out;
+    };
+    const para = (n, o = {}) => new Paragraph({
+        children: runs(n, {size: o.size || 20, color: o.color, bold: o.bold}), alignment: o.align, keepNext: o.keepNext, pageBreakBefore: o.pb,
+        spacing: {before: o.before || 0, after: o.after == null ? 100 : o.after}, indent: o.indent ? {left: o.indent} : undefined,
+        border: o.bar ? {left: {style: BorderStyle.SINGLE, size: 18, color: TEAL, space: 8}} : undefined
+    });
+    const gap = () => new Paragraph({children: [], spacing: {after: 80}});
+
+    // Tabla del DOM → tabla de Word, con encabezado teñido, totales en negrita y encabezado repetido en cada página
+    function tabla(t) {
+        const rows = [...t.rows], nc = Math.max(...rows.map(r => r.cells.length));
+        // 4 columnas o más: todas del mismo ancho y la tabla ocupa la hoja. Tablas de 2-3 columnas (plaga/capturas/%): compactas y centradas
+        const cw = nc <= 3 ? [3400, ...Array(nc - 1).fill(1500)].slice(0, nc) : Array(nc).fill(Math.floor(W / nc)), tw = cw.reduce((a, v) => a + v, 0), sz = nc > 8 ? 16 : 18;
+        return new Table({alignment: AlignmentType.CENTER, width: {size: tw, type: WidthType.DXA}, columnWidths: cw, rows: rows.map(tr => {
+            const cab = tr.parentNode.tagName === "THEAD", pie = tr.parentNode.tagName === "TFOOT" || tr.classList.contains("tot");
+            return new TableRow({cantSplit: true, tableHeader: cab, children: [...tr.cells].map((td, j, a) => new TableCell({
+                width: {size: cw[j], type: WidthType.DXA}, columnSpan: j === a.length - 1 && a.length < nc ? nc - a.length + 1 : undefined, verticalAlign: VerticalAlign.CENTER,
+                shading: cab ? {type: ShadingType.CLEAR, color: "auto", fill: "D9EBE8"} : pie ? {type: ShadingType.CLEAR, color: "auto", fill: "F1F5F4"} : undefined,
+                margins: {top: 40, bottom: 40, left: 90, right: 90}, borders: {top: BL, bottom: BL, left: BL, right: BL},
+                children: [new Paragraph({alignment: j === 0 ? AlignmentType.LEFT : AlignmentType.RIGHT, children: runs(td, {size: sz, bold: cab || pie || undefined, color: cab ? DEEP : undefined})})]
+            }))});
+        })});
+    }
+    // Datos del cliente: pares etiqueta/valor en dos columnas
+    function kvTabla(kv) {
+        const c = [...kv.children], cw = [1700, 5356, 1700, 5356], B = {top: NO, left: NO, right: NO, bottom: BL};
+        const filas = []; for (let i = 0; i < c.length; i += 4) filas.push(c.slice(i, i + 4));
+        return new Table({width: {size: W, type: WidthType.DXA}, columnWidths: cw, rows: filas.map(f => new TableRow({cantSplit: true, children: cw.map((w, j) => new TableCell({
+            width: {size: w, type: WidthType.DXA}, borders: B, margins: {top: 50, bottom: 50, left: 60, right: 60}, verticalAlign: VerticalAlign.CENTER,
+            children: [new Paragraph({children: f[j] ? runs(f[j], j % 2 ? {size: 20} : {size: 17, bold: true, color: GRIS}) : []})]
+        }))}))});
+    }
+    // Cifras grandes del encabezado de la auditoría
+    function figuras(fg) {
+        const f = [...fg.children], cw = f.map(() => Math.floor(W / f.length)), B = {top: {style: BorderStyle.SINGLE, size: 18, color: TEAL}, bottom: BL, left: NO, right: NO};
+        return new Table({width: {size: cw.reduce((a, v) => a + v, 0), type: WidthType.DXA}, columnWidths: cw, rows: [new TableRow({cantSplit: true, children: f.map((x, i) => new TableCell({
+            width: {size: cw[i], type: WidthType.DXA}, borders: B, margins: {top: 100, bottom: 100, left: 120, right: 120},
+            children: [new Paragraph({children: runs(x.querySelector("b"), {size: 44, bold: true, color: DEEP}), spacing: {after: 0}}), new Paragraph({children: runs(x.querySelector("span"), {size: 16, color: GRIS})})]
+        }))})]});
+    }
+    let nativo = typeof JSZip !== "undefined" && typeof Chart.getChart === "function"; const nativas = [];
+    function imagen(c, out) {
+        const cv = live[+c.dataset.i], w = cv.clientWidth || 600, h = cv.clientHeight || 300, k = Math.min(1, 880 / w, 340 / h), ch = nativo && Chart.getChart(cv);
+        if (ch && ["line", "doughnut", "pie"].indexOf(ch.config.type) >= 0) {   // gráfica editable: el marcador se cambia por la gráfica real al empaquetar
+            nativas.push({ch, cx: Math.round(w * k * 9525), cy: Math.round(h * k * 9525)});
+            out.push(new Paragraph({keepNext: true, children: [new TextRun({text: "[[GRAFICA_" + (nativas.length - 1) + "]]"})]})); return;
+        }
+        out.push(new Paragraph({keepNext: true, alignment: AlignmentType.CENTER, spacing: {before: 60, after: 100}, children: [new ImageRun({data: bytes(cv.toDataURL("image/png")), type: "png", transformation: {width: Math.round(w * k), height: Math.round(h * k)}})]}));
+    }
+
+    let lista = 0;
+    function walk(n, out) {
+        [...n.children].forEach(c => {
+            const tag = c.tagName, cl2 = c.classList;
+            if (tag === "CANVAS") return imagen(c, out);
+            if (tag === "TABLE") { out.push(tabla(c), gap()); return; }
+            if (cl2.contains("kv")) { out.push(kvTabla(c), gap()); return; }
+            if (cl2.contains("figures")) { out.push(figuras(c), gap()); return; }
+            if (cl2.contains("bar-row")) {
+                const nom = c.querySelector("span"), val = c.querySelector("b");
+                out.push(new Paragraph({spacing: {after: 40}, children: [new TextRun({text: (nom ? nom.textContent : "") + ": ", size: 20}), new TextRun({text: val ? val.textContent : "", size: 20, bold: true})]})); return;
+            }
+            if (tag === "DETAILS") { walk(c.querySelector("summary"), out); const q = c.querySelector(".q-list"); if (q) out.push(para(q, {size: 16, color: GRIS, indent: 300, after: 80})); return; }
+            if (tag === "UL" || tag === "OL") {
+                const inst = ++lista;
+                [...c.children].forEach(li => out.push(new Paragraph({numbering: {reference: tag === "UL" ? "vin" : "num", level: 0, instance: inst}, children: runs(li, {size: 20}), spacing: {after: 60}}))); return;
+            }
+            if (!c.textContent.trim() && !c.querySelector("canvas, table")) return;
+            if (/^H[1-6]$/.test(tag) || cl2.contains("plh") || cl2.contains("fh") || cl2.contains("cat-title") || cl2.contains("h")) { out.push(para(c, {size: 22, bold: true, color: DEEP, before: 200, after: 80, keepNext: true})); return; }
+            if ([...c.children].some(k => BLOQ.test(k.tagName) || k.classList.contains("bar-row"))) {
+                if (cl2.contains("ficha-blk") && c.previousElementSibling && c.previousElementSibling.classList.contains("ficha-blk")) out.push(new Paragraph({pageBreakBefore: true, children: []}));
+                walk(c, out); return;
+            }
+            if (cl2.contains("note")) out.push(para(c, {bar: true, indent: 160, before: 60, after: 120}));
+            else if (cl2.contains("vacio") || cl2.contains("meta")) out.push(para(c, {size: 17, color: GRIS, keepNext: cl2.contains("meta"), after: 100}));
+            else out.push(para(c, {}));
+        });
+    }
+
+    const armar = () => {
+    nativas.length = 0; const body = [];
+    cl.cloneNode(true).querySelectorAll("section.rcard").forEach(s => {
+        const h = s.querySelector(".rhead h3"); if (h) body.push(new Paragraph({keepNext: true, spacing: {before: 360, after: 140}, border: {bottom: {style: BorderStyle.SINGLE, size: 8, color: TEAL, space: 3}}, children: [new TextRun({text: h.textContent.toUpperCase(), bold: true, size: 26, color: TEAL})]}));
+        const rh = s.querySelector(".rhead"); if (rh) rh.remove();
+        walk(s, body);
+    });
+    return body; };
+
+    // Encabezado y pie como en el PDF: logo, escudo y QR (se buscan junto a la página y, si no están, en su sitio publicado)
+    const bajar = async urls => { for (const u of urls) { try { const r = await fetch(u); if (!r.ok) continue; const buf = new Uint8Array(await r.arrayBuffer()), bm = await createImageBitmap(new Blob([buf])); return {buf, ar: bm.width / bm.height}; } catch (e) {} } return null; };
+    const PAGES = "https://procontrolmexico.github.io/Reportes-KFC/", RAW = "https://raw.githubusercontent.com/gavainc/Procontrol-Mexico/main/";
+    const [logo, escudo, qr] = await Promise.all([
+        bajar([LOGO]),
+        bajar(["Escudo Procontrol.png", PAGES + "Escudo%20Procontrol.png", RAW + "Escudo%20Procontrol.png"]),
+        bajar(["QR Procontrol.png", RAW + "QR%20Procontrol.png", PAGES + "QR%20Procontrol.png"])
+    ]);
+    const img = (a, h) => a ? [new ImageRun({data: a.buf, type: "png", transformation: {width: Math.round(a.ar * h), height: h}})] : [];
+    const SB = {top: NO, bottom: NO, left: NO, right: NO};
+    const celda = (w, children, extra = {}) => new TableCell({width: {size: w, type: WidthType.DXA}, verticalAlign: VerticalAlign.CENTER, borders: SB, children, ...extra});
+    const tabla2 = (cw, cells, borders) => new Table({width: {size: W, type: WidthType.DXA}, columnWidths: cw, borders: {top: NO, bottom: NO, left: NO, right: NO, insideHorizontal: NO, insideVertical: NO}, rows: [new TableRow({cantSplit: true, children: cells})]});
+    const linea = {top: {style: BorderStyle.SINGLE, size: 24, color: TEAL}, bottom: {style: BorderStyle.SINGLE, size: 6, color: LINEA}, left: NO, right: NO};
+    const der = (t, o) => new Paragraph({alignment: AlignmentType.RIGHT, spacing: {after: 20}, children: [new TextRun({text: t, ...o})]});
+    // Primera página: logo grande y datos del informe; las demás: versión compacta
+    const encabPrimera = new Header({children: [tabla2([5000, 9112], [
+        celda(5000, [new Paragraph({children: img(logo, 62), spacing: {before: 60, after: 60}})], {borders: linea}),
+        celda(9112, [der("KFC · todas las sucursales seleccionadas", {bold: true, size: 26, color: "0F172A"}), der($("ph-sub").textContent, {size: 16, color: "475569", bold: true}), der("INFORME CORPORATIVO DE HALLAZGOS", {size: 15, color: TEAL, bold: true})], {borders: linea})
+    ])]});
+    const encab = new Header({children: [tabla2([5000, 9112], [
+        celda(5000, [new Paragraph({children: img(logo, 36), spacing: {before: 40, after: 40}})], {borders: linea}),
+        celda(9112, [der("KFC · informe corporativo de hallazgos · " + periodo(), {size: 16, color: GRIS})], {borders: linea})
+    ])]});
+    const pieDoc = () => new Footer({children: [tabla2([2300, 9512, 2300], [
+        celda(2300, [new Paragraph({children: img(escudo, 46)})], {borders: {...SB, top: {style: BorderStyle.SINGLE, size: 6, color: LINEA}}}),
+        celda(9512, [
+            new Paragraph({alignment: AlignmentType.CENTER, spacing: {after: 20}, children: [new TextRun({text: "Profesionales en Servicios de Control y Manejo de Plagas S de RL de CV", bold: true, size: 16, color: "0F172A"})]}),
+            new Paragraph({alignment: AlignmentType.CENTER, spacing: {after: 0}, children: [new TextRun({text: "© 2026 · www.procontrolmexico.com · Página ", size: 14, color: GRIS}), new TextRun({children: [PageNumber.CURRENT], size: 14, color: GRIS}), new TextRun({text: " de ", size: 14, color: GRIS}), new TextRun({children: [PageNumber.TOTAL_PAGES], size: 14, color: GRIS})]})
+        ], {borders: {...SB, top: {style: BorderStyle.SINGLE, size: 6, color: LINEA}}}),
+        celda(2300, [new Paragraph({alignment: AlignmentType.RIGHT, children: img(qr, 46)})], {borders: {...SB, top: {style: BorderStyle.SINGLE, size: 6, color: LINEA}}})
+    ])]});
+    const sangria = {paragraph: {indent: {left: 540, hanging: 270}}};
+    const empaquetar = async () => { const doc = new Document({
+        creator: "Procontrol México", title: "Reporte KFC " + periodo(),
+        styles: {default: {document: {run: {font: "Calibri", size: 20}}}},
+        numbering: {config: [{reference: "vin", levels: [{level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT, style: sangria}]}, {reference: "num", levels: [{level: 0, format: LevelFormat.DECIMAL, text: "%1.", alignment: AlignmentType.LEFT, style: sangria}]}]},
+        sections: [{properties: {titlePage: true, page: {size: {width: 12240, height: 15840, orientation: PageOrientation.LANDSCAPE}, margin: {top: 1200, bottom: 900, left: 864, right: 864, header: 450, footer: 400}}}, headers: {default: encab, first: encabPrimera}, footers: {default: pieDoc(), first: pieDoc()}, children: armar()}]
+    });
+        const b = await Packer.toBlob(doc); return nativas.length ? inyectarGraficas(b, nativas) : b; };
+    let blob; try { blob = await empaquetar(); } catch (e) { console.warn("Gráficas nativas no disponibles, se usan imágenes:", e); nativo = false; blob = await empaquetar(); }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "Reporte_KFC_" + periodo().replace(/\s+/g, "_") + ".docx"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
 window.addEventListener("beforeprint", () => Object.values(charts).forEach(c => c.resize()));
 </script>
